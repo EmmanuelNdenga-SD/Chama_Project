@@ -1,0 +1,118 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  background-image: url('https://greenspoon.co.ke/wp-content/uploads/2020/11/Greenspoon-Makueni-Kikapu.jpg');
+  background-size: 100% 100%; /* Stretches the image */
+  background-repeat: no-repeat;
+  height: 100vh;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.fee-info {
+  text-align: center;
+  color: #e74c3c;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.form-section, .members-section {
+  background-color: #ecf0f1;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: #3498db;
+  margin-top: 0;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #2c3e50;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button {
+  background-color: #2ecc71;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #27ae60;
+}
+
+#membersList {
+  margin-top: 20px;
+}
+
+.member-card {
+  background-color: white;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.member-info p {
+  margin: 5px 0;
+}
+
+.remove-btn {
+  background-color: #e74c3c;
+  padding: 8px 15px;
+}
+
+.remove-btn:hover {
+  background-color: #c0392b;
+}
+
+.payment-status {
+  font-weight: bold;
+}
+
+.paid {
+  color: #2ecc71;
+}
+
+.unpaid {
+  color: #e74c3c;
+}
