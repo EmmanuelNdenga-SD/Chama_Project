@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', loadMembers);
 
 // Functions
 function loadMembers() {
-  fetch('members.json')
+  fetch('https://my-app-backend-e4c6.onrender.com/api/members')
     .then(response => response.json())
     .then(data => {
       members = data;
