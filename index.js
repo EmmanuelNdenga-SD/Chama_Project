@@ -1,8 +1,6 @@
-// Global variables
 let members = [];
 const membershipFee = 1000;
 
-// DOM elements
 const memberForm = document.getElementById('memberForm');
 const membersList = document.getElementById('membersList');
 
@@ -12,8 +10,6 @@ document.addEventListener('DOMContentLoaded', loadMembers);
 
 // Functions
 function loadMembers() {
-  // In a real app, you would fetch this from a server
-  // For now, we'll use the data from our JSON file
   fetch('members.json')
     .then(response => response.json())
     .then(data => {
@@ -71,7 +67,7 @@ function addMember(e) {
   const email = document.getElementById('email').value;
   
   const newMember = {
-    id: Date.now(), // Simple unique ID
+    id: Date.now(), 
     name,
     phone,
     email: email || null,
@@ -82,10 +78,10 @@ function addMember(e) {
   members.push(newMember);
   displayMembers();
   
-  // Reset form
+  
   memberForm.reset();
   
-  // In a real app, you would send this to a server
+  
   console.log('New member added:', newMember);
   alert(`Member added successfully! ${name} has paid ${membershipFee} KSH.`);
 }
@@ -95,7 +91,7 @@ function removeMember(id) {
     members = members.filter(member => member.id !== id);
     displayMembers();
     
-    // In a real app, you would update the server
+    
     console.log('Member removed with ID:', id);
   }
 }
