@@ -1,6 +1,7 @@
-let members = [];
+const API_BASE_URL = 'https://my-app-backend-e4c6.onrender.com/api/members';
 const membershipFee = 1000;
 
+let members = [];
 const memberForm = document.getElementById('memberForm');
 const membersList = document.getElementById('membersList');
 
@@ -8,18 +9,18 @@ const membersList = document.getElementById('membersList');
 memberForm.addEventListener('submit', addMember);
 document.addEventListener('DOMContentLoaded', loadMembers);
 
-// Functions
-function loadMembers() {
-  fetch('https://my-app-backend-e4c6.onrender.com/api/members')
-    .then(response => response.json())
-    .then(data => {
-      members = data;
-      displayMembers();
-    })
-    .catch(error => {
-      console.error('Error loading members:', error);
-      members = [];
-    });
+async function loadMembers() {
+  try {
+    console.log('Loading members...'); // Debug log
+    const response = await fetch(API_BASE_URL);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    members = await response.json();
+    console.log('Members loaded:', members); // Debug log
+    displayMembers();
+  } catch (error) {
+    console.error('Error loading members:', error);
+    membersList.innerHTML = '<p class="error">Error loading members. Please refresh.</p>';
+  }
 }
 
 function displayMembers() {
@@ -33,65 +34,110 @@ function displayMembers() {
   members.forEach(member => {
     const memberCard = document.createElement('div');
     memberCard.className = 'member-card';
+    memberCard.dataset.id = member._id || member.id; // Handle both _id and id
     
-    const memberInfo = document.createElement('div');
-    memberInfo.className = 'member-info';
-    memberInfo.innerHTML = `
-      <p><strong>Name:</strong> ${member.name}</p>
-      <p><strong>Phone:</strong> ${member.phone}</p>
-      ${member.email ? `<p><strong>Email:</strong> ${member.email}</p>` : ''}
-      <p><strong>Payment Status:</strong> 
-        <span class="payment-status ${member.hasPaid ? 'paid' : 'unpaid'}">
-          ${member.hasPaid ? 'Paid' : 'Unpaid'}
-        </span>
-      </p>
-      ${member.paymentDate ? `<p><strong>Payment Date:</strong> ${member.paymentDate}</p>` : ''}
+    memberCard.innerHTML = `
+      <div class="member-info">
+        <p><strong>Name:</strong> ${member.name}</p>
+        <p><strong>Phone:</strong> ${member.phone}</p>
+        ${member.email ? `<p><strong>Email:</strong> ${member.email}</p>` : ''}
+        <p><strong>Payment Status:</strong> 
+          <span class="payment-status ${member.hasPaid ? 'paid' : 'unpaid'}">
+            ${member.hasPaid ? 'Paid' : 'Unpaid'}
+          </span>
+        </p>
+        ${member.paymentDate ? `<p><strong>Payment Date:</strong> ${member.paymentDate}</p>` : ''}
+      </div>
+      <button class="remove-btn" data-id="${member._id || member.id}">Remove</button>
     `;
     
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'remove-btn';
-    removeBtn.textContent = 'Remove';
-    removeBtn.addEventListener('click', () => removeMember(member.id));
+    memberCard.querySelector('.remove-btn').addEventListener('click', async (e) => {
+      const memberId = e.target.getAttribute('data-id');
+      console.log('Attempting to remove member with ID:', memberId); // Debug log
+      await removeMember(memberId);
+    });
     
-    memberCard.appendChild(memberInfo);
-    memberCard.appendChild(removeBtn);
     membersList.appendChild(memberCard);
   });
 }
 
-function addMember(e) {
+async function addMember(e) {
   e.preventDefault();
   
-  const name = document.getElementById('name').value;
-  const phone = document.getElementById('phone').value;
-  const email = document.getElementById('email').value;
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const email = document.getElementById('email').value.trim();
   
+  if (!name || !phone) {
+    alert('Please fill in all required fields (name and phone)');
+    return;
+  }
+
   const newMember = {
-    id: Date.now(), 
     name,
     phone,
     email: email || null,
-    paymentDate: new Date().toISOString().split('T')[0],
+    paymentDate: new Date().toISOString(),
     hasPaid: true
   };
-  
-  members.push(newMember);
-  displayMembers();
-  
-  
-  memberForm.reset();
-  
-  
-  console.log('New member added:', newMember);
-  alert(`Member added successfully! ${name} has paid ${membershipFee} KSH.`);
+
+  try {
+    const response = await fetch(API_BASE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newMember)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to add member');
+    }
+
+    const addedMember = await response.json();
+    members.push(addedMember);
+    displayMembers();
+    memberForm.reset();
+    alert(`Member added successfully! ${name} has paid ${membershipFee} KSH.`);
+  } catch (error) {
+    console.error('Error adding member:', error);
+    alert(`Failed to add member: ${error.message}`);
+  }
 }
 
-function removeMember(id) {
-  if (confirm('Are you sure you want to remove this member?')) {
-    members = members.filter(member => member.id !== id);
+async function removeMember(id) {
+  if (!id) {
+    console.error('No member ID provided for deletion');
+    alert('Error: No member ID provided');
+    return;
+  }
+
+  if (!confirm('Are you sure you want to remove this member?')) return;
+
+  try {
+    console.log('Sending DELETE request for ID:', id); // Debug log
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    console.log('DELETE response:', response); // Debug log
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('DELETE error response:', errorText); // Debug log
+      throw new Error(errorText || 'Failed to delete member');
+    }
+
+    // Update local state only after successful backend deletion
+    members = members.filter(member => (member._id || member.id) !== id);
     displayMembers();
-    
-    
-    console.log('Member removed with ID:', id);
+    alert('Member removed successfully!');
+  } catch (error) {
+    console.error('Error removing member:', error);
+    alert(`Failed to remove member: ${error.message}`);
   }
 }
